@@ -6,6 +6,14 @@ impl Color {
         Self(crate::Vector::new(*r, *g, *b))
     }
 
+    pub fn new_unchecked(r: crate::Float, g: crate::Float, b: crate::Float) -> Self {
+        Self(crate::Vector::new(
+            *crate::NonNegFloat::new_unchecked(r),
+            *crate::NonNegFloat::new_unchecked(g),
+            *crate::NonNegFloat::new_unchecked(b),
+        ))
+    }
+
     fn r(&self) -> crate::Float {
         self.0.x
     }
