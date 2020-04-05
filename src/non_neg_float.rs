@@ -10,6 +10,10 @@ impl NonNegFloat {
             None
         }
     }
+
+    pub fn new_unchecked(x: crate::Float) -> Self {
+        Self::new(x).unwrap()
+    }
 }
 
 impl Deref for NonNegFloat {
