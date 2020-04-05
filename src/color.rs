@@ -1,24 +1,20 @@
 pub struct Color(crate::Vec3);
 
 impl Color {
-    pub fn new(
-        r: crate::NonNegFloat,
-        g: crate::NonNegFloat,
-        b: crate::NonNegFloat,
-    ) -> Self {
-        Self(crate::Vec3::new(*r, *g, *b))
+    pub fn new(r: crate::NonNegFloat, g: crate::NonNegFloat, b: crate::NonNegFloat) -> Self {
+        Self(crate::Vector::new(*r, *g, *b))
     }
 
     fn r(&self) -> crate::Float {
-        self.0[0]
+        self.0.x
     }
 
     fn g(&self) -> crate::Float {
-        self.0[1]
+        self.0.y
     }
 
     fn b(&self) -> crate::Float {
-        self.0[2]
+        self.0.z
     }
 }
 
