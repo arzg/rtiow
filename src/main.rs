@@ -37,9 +37,5 @@ fn background(ray: &rtiow::Ray) -> rtiow::Color {
 
     let vec = (1.0 - t) * rtiow::Vector::new(1.0, 1.0, 1.0) + t * rtiow::Vector::new(0.5, 0.7, 1.0);
 
-    rtiow::Color::new(
-        rtiow::NonNegFloat::new_unchecked(vec.x),
-        rtiow::NonNegFloat::new_unchecked(vec.y),
-        rtiow::NonNegFloat::new_unchecked(vec.z),
-    )
+    rtiow::Color::new_unchecked(vec.x, vec.y, vec.z)
 }
