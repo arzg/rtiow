@@ -13,11 +13,14 @@ fn main() -> anyhow::Result<()> {
             let g = y as f64 / f64::from(HEIGHT);
             let b: f64 = 0.2;
 
-            *pixel = image::Rgb([
-                (255.999 * r).round() as u8,
-                (255.999 * g).round() as u8,
-                (255.999 * b).round() as u8,
-            ]);
+            // All of thse won’t ever be negative, so we can unwrap here safely.
+            let rgb = rtiow::Color::new(
+                rtiow::NonNegFloat::new(r).unwrap(),
+                rtiow::NonNegFloat::new(g).unwrap(),
+                rtiow::NonNegFloat::new(b).unwrap(),
+            );
+
+            *pixel = rgb.into();
         }
 
         progress_bar.inc(1);
