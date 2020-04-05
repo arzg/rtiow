@@ -1,4 +1,5 @@
-pub struct Color(crate::Vec3);
+#[derive(Debug)]
+pub struct Color(crate::Vector);
 
 impl Color {
     pub fn new(r: crate::NonNegFloat, g: crate::NonNegFloat, b: crate::NonNegFloat) -> Self {
@@ -21,9 +22,9 @@ impl Color {
 impl From<Color> for image::Rgb<u8> {
     fn from(color: Color) -> Self {
         Self([
-            color.r().round() as u8,
-            color.g().round() as u8,
-            color.b().round() as u8,
+            (255.0 * color.r()).round() as u8,
+            (255.0 * color.g()).round() as u8,
+            (255.0 * color.b()).round() as u8,
         ])
     }
 }
