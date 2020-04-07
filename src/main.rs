@@ -2,7 +2,7 @@ const WIDTH: u32 = 200;
 const HEIGHT: u32 = 100;
 
 fn main() -> anyhow::Result<()> {
-    let progress_bar = indicatif::ProgressBar::new(u64::from(WIDTH));
+    let progress_bar = indicatif::ProgressBar::new(u64::from(HEIGHT));
 
     let mut img: image::RgbImage =
         image::ImageBuffer::from_pixel(WIDTH, HEIGHT, image::Rgb([0, 0, 0]));
