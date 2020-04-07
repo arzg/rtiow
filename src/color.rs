@@ -1,4 +1,4 @@
-#[derive(Debug)]
+#[derive(Debug, derive_more::AddAssign)]
 pub struct Color(crate::Vector);
 
 impl Color {
@@ -25,14 +25,18 @@ impl Color {
     fn b(&self) -> crate::Float {
         self.0.z
     }
-}
 
-impl From<Color> for image::Rgb<u8> {
-    fn from(color: Color) -> Self {
-        Self([
-            (255.0 * color.r()).round() as u8,
-            (255.0 * color.g()).round() as u8,
-            (255.0 * color.b()).round() as u8,
-        ])
+    pub fn as_rgb(&self, samples_per_pixel: u32) -> image::Rgb<u8> {
+        // Divide the colour total by the number of samples.
+        let scale = 1.0 / crate::Float::from(samples_per_pixel);
+        let r = scale * self.r();
+        let g = scale * self.g();
+        let b = scale * self.b();
+
+        let r255: crate::Float = 255.0 * num::clamp(r, 0.0, 1.0);
+        let g255: crate::Float = 255.0 * num::clamp(g, 0.0, 1.0);
+        let b255: crate::Float = 255.0 * num::clamp(b, 0.0, 1.0);
+
+        image::Rgb([r255.round() as u8, g255.round() as u8, b255.round() as u8])
     }
 }

@@ -1,16 +1,17 @@
 const WIDTH: u32 = 200;
 const HEIGHT: u32 = 100;
+const SAMPLES_PER_PIXEL: u32 = 100;
 
 fn main() -> anyhow::Result<()> {
+    use rand::Rng;
+
     let progress_bar = indicatif::ProgressBar::new(u64::from(HEIGHT));
 
     let mut img: image::RgbImage =
         image::ImageBuffer::from_pixel(WIDTH, HEIGHT, image::Rgb([0, 0, 0]));
 
-    let lower_left_corner = rtiow::Vector::new(-2.0, -1.0, -1.0);
-    let horizontal = rtiow::Vector::new(4.0, 0.0, 0.0);
-    let vertical = rtiow::Vector::new(0.0, 2.0, 0.0);
-    let origin = rtiow::Point::origin();
+    let camera = rtiow::Camera::new();
+    let mut rng = rand::thread_rng();
 
     let mut world = rtiow::HitList::new();
 
@@ -25,12 +26,17 @@ fn main() -> anyhow::Result<()> {
 
     for (y, row) in img.rows_mut().rev().enumerate() {
         for (x, pixel) in row.enumerate() {
-            let u = x as rtiow::Float / rtiow::Float::from(WIDTH);
-            let v = y as rtiow::Float / rtiow::Float::from(HEIGHT);
-            let r = rtiow::Ray::new(origin, lower_left_corner + u * horizontal + v * vertical);
+            let mut color = rtiow::Color::new_unchecked(0.0, 0.0, 0.0);
 
-            let color = ray_color(&r, &world);
-            *pixel = color.into();
+            for _ in 0..SAMPLES_PER_PIXEL {
+                let u = (x as rtiow::Float + rng.gen_range(0.0, 1.0)) / rtiow::Float::from(WIDTH);
+                let v = (y as rtiow::Float + rng.gen_range(0.0, 1.0)) / rtiow::Float::from(HEIGHT);
+                let r = camera.ray(u, v);
+
+                color += ray_color(&r, &world);
+            }
+
+            *pixel = color.as_rgb(SAMPLES_PER_PIXEL);
         }
 
         progress_bar.inc(1);

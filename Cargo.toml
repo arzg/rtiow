@@ -8,7 +8,9 @@ edition = "2018"
 
 [dependencies]
 anyhow = "1"
+derive_more = "0.99"
 image = "0.23"
 indicatif = "0.14"
 nalgebra = "0.20"
 num = "0.2"
+rand = "0.7"
