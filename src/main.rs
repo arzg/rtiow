@@ -14,8 +14,8 @@ fn main() -> anyhow::Result<()> {
 
     for (y, row) in img.rows_mut().rev().enumerate() {
         for (x, pixel) in row.enumerate() {
-            let u = x as f64 / f64::from(WIDTH);
-            let v = y as f64 / f64::from(HEIGHT);
+            let u = x as rtiow::Float / rtiow::Float::from(WIDTH);
+            let v = y as rtiow::Float / rtiow::Float::from(HEIGHT);
             let r = rtiow::Ray::new(origin, lower_left_corner + u * horizontal + v * vertical);
 
             let color = background(&r);
