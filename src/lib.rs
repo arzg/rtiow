@@ -3,7 +3,17 @@ pub type Vector = nalgebra::Vector3<Float>;
 pub type Point = nalgebra::Point3<Float>;
 
 mod color;
+mod hit;
+mod hit_list;
 mod non_neg_float;
 mod ray;
+mod sphere;
 
-pub use {color::Color, non_neg_float::NonNegFloat, ray::Ray};
+pub use {
+    color::Color,
+    hit::{Hit, HitRecord},
+    hit_list::HitList,
+    non_neg_float::NonNegFloat,
+    ray::Ray,
+    sphere::Sphere,
+};
