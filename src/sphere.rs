@@ -5,7 +5,11 @@ pub struct Sphere {
 }
 
 impl Sphere {
-    pub fn new(center: crate::Point, radius: crate::Float, material: Box<dyn crate::Material>) -> Self {
+    pub fn new(
+        center: crate::Point,
+        radius: crate::Float,
+        material: Box<dyn crate::Material>,
+    ) -> Self {
         Self {
             center,
             radius,
