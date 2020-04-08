@@ -11,7 +11,7 @@ fn main() -> anyhow::Result<()> {
     let mut img: image::RgbImage =
         image::ImageBuffer::from_pixel(WIDTH, HEIGHT, image::Rgb([0, 0, 0]));
 
-    let camera = rtiow::Camera::new();
+    let camera = rtiow::Camera::new(VERTICAL_FOV, ASPECT);
     let mut rng = rand::thread_rng();
 
     let mut world = rtiow::HitList::new();
