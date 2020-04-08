@@ -17,8 +17,7 @@ impl crate::Material for Lambertian {
     ) -> Option<(crate::Ray, &crate::Color)> {
         let scatter_direction = hit_record.normal() + crate::rand_unit_vector();
         let scattered = crate::Ray::new(*hit_record.position(), scatter_direction);
-        let attenuation = &self.color;
 
-        Some((scattered, attenuation))
+        Some((scattered, &self.color))
     }
 }
