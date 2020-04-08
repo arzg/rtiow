@@ -1,5 +1,7 @@
 const WIDTH: u32 = 200;
 const HEIGHT: u32 = 100;
+const ASPECT: rtiow::Float = WIDTH as rtiow::Float / HEIGHT as rtiow::Float;
+const VERTICAL_FOV: rtiow::Float = 27.0;
 const SAMPLES_PER_PIXEL: u32 = 100;
 const MAX_RAY_BOUNCES: u32 = 50;
 
@@ -11,7 +13,13 @@ fn main() -> anyhow::Result<()> {
     let mut img: image::RgbImage =
         image::ImageBuffer::from_pixel(WIDTH, HEIGHT, image::Rgb([0, 0, 0]));
 
-    let camera = rtiow::Camera::new(VERTICAL_FOV, ASPECT);
+    let camera = rtiow::Camera::new(
+        rtiow::Vector::new(0.0, 0.5, 2.0),
+        rtiow::Vector::new(0.0, 0.0, -1.0),
+        rtiow::Vector::new(0.0, 1.0, 0.0),
+        VERTICAL_FOV,
+        ASPECT,
+    );
     let mut rng = rand::thread_rng();
 
     let mut world = rtiow::HitList::new();
