@@ -42,6 +42,14 @@ impl Color {
     }
 }
 
+impl std::ops::Mul<&Color> for Color {
+    type Output = Self;
+
+    fn mul(self, rhs: &Color) -> Self::Output {
+        Self(self.0.component_mul(&rhs.0))
+    }
+}
+
 impl std::ops::Mul<crate::Float> for Color {
     type Output = Self;
 

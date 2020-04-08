@@ -1,11 +1,16 @@
 pub struct Sphere {
     center: crate::Point,
     radius: crate::Float,
+    material: Box<dyn crate::Material>,
 }
 
 impl Sphere {
-    pub fn new(center: crate::Point, radius: crate::Float) -> Self {
-        Self { center, radius }
+    pub fn new(center: crate::Point, radius: crate::Float, material: Box<dyn crate::Material>) -> Self {
+        Self {
+            center,
+            radius,
+            material,
+        }
     }
 }
 
@@ -43,7 +48,13 @@ impl crate::Hit for Sphere {
             let hit_position = ray.at(t);
             let outward_normal = (hit_position - self.center) / self.radius;
 
-            Some(crate::HitRecord::new(ray, hit_position, t, outward_normal))
+            Some(crate::HitRecord::new(
+                ray,
+                hit_position,
+                t,
+                outward_normal,
+                &*self.material,
+            ))
         } else {
             None
         }

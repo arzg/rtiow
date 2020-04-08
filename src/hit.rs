@@ -1,17 +1,19 @@
 #[derive(Debug)]
-pub struct HitRecord {
+pub struct HitRecord<'mat> {
     position: crate::Point,
     t: crate::Float,
     normal: crate::Vector,
     front_face: bool,
+    material: &'mat dyn crate::Material,
 }
 
-impl HitRecord {
+impl<'mat> HitRecord<'mat> {
     pub(crate) fn new(
         ray: &crate::Ray,
         position: crate::Point,
         t: crate::Float,
         outward_normal: crate::Vector,
+        material: &'mat dyn crate::Material,
     ) -> Self {
         let front_face = ray.direction().dot(&outward_normal) < 0.0;
 
@@ -26,6 +28,7 @@ impl HitRecord {
             t,
             normal,
             front_face,
+            material,
         }
     }
 
@@ -40,8 +43,17 @@ impl HitRecord {
     pub fn normal(&self) -> &crate::Vector {
         &self.normal
     }
+
+    pub fn material(&self) -> &'mat dyn crate::Material {
+        self.material
+    }
 }
 
 pub trait Hit {
-    fn hit(&self, ray: &crate::Ray, t_min: crate::Float, t_max: crate::Float) -> Option<HitRecord>;
+    fn hit(
+        &self,
+        ray: &crate::Ray,
+        t_min: crate::Float,
+        t_max: crate::Float,
+    ) -> Option<HitRecord>;
 }

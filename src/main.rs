@@ -19,10 +19,30 @@ fn main() -> anyhow::Result<()> {
     world.push(Box::new(rtiow::Sphere::new(
         rtiow::Point::new(0.0, 0.0, -1.0),
         0.5,
+        Box::new(rtiow::Lambertian::new(rtiow::Color::new_unchecked(
+            0.7, 0.3, 0.3,
+        ))),
     )));
     world.push(Box::new(rtiow::Sphere::new(
         rtiow::Point::new(0.0, -100.5, -1.0),
         100.0,
+        Box::new(rtiow::Lambertian::new(rtiow::Color::new_unchecked(
+            0.8, 0.8, 0.0,
+        ))),
+    )));
+    world.push(Box::new(rtiow::Sphere::new(
+        rtiow::Point::new(1.0, 0.0, -1.0),
+        0.5,
+        Box::new(rtiow::Metal::new(rtiow::Color::new_unchecked(
+            0.8, 0.6, 0.2,
+        ))),
+    )));
+    world.push(Box::new(rtiow::Sphere::new(
+        rtiow::Point::new(-1.0, 0.0, -1.0),
+        0.5,
+        Box::new(rtiow::Metal::new(rtiow::Color::new_unchecked(
+            0.8, 0.8, 0.8,
+        ))),
     )));
 
     for (y, row) in img.rows_mut().rev().enumerate() {
@@ -58,14 +78,11 @@ fn ray_color(ray: &rtiow::Ray, world: &rtiow::HitList, depth: u32) -> rtiow::Col
     }
 
     if let Some(hit_record) = world.hit(ray, 0.001, rtiow::float::INFINITY) {
-        let target = hit_record.position() + hit_record.normal() + rtiow::rand_unit_vector();
-
-        // Recurse into next bounce, halving brightness.
-        ray_color(
-            &rtiow::Ray::new(*hit_record.position(), target - hit_record.position()),
-            world,
-            depth - 1,
-        ) * 0.9
+        if let Some((scattered, attenuation)) = hit_record.material().scatter(ray, hit_record) {
+            ray_color(&scattered, world, depth - 1) * attenuation
+        } else {
+            rtiow::Color::new_unchecked(0.0, 0.0, 0.0)
+        }
     } else {
         let unit_direction = ray.direction().normalize();
         let t = 0.5 * (unit_direction.y + 1.0);
