@@ -1,5 +1,3 @@
-use std::ops::Deref;
-
 pub struct NonNegFloat(crate::Float);
 
 impl NonNegFloat {
@@ -16,7 +14,7 @@ impl NonNegFloat {
     }
 }
 
-impl Deref for NonNegFloat {
+impl std::ops::Deref for NonNegFloat {
     type Target = crate::Float;
 
     fn deref(&self) -> &Self::Target {
