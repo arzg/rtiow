@@ -44,6 +44,10 @@ impl<'mat> HitRecord<'mat> {
         &self.normal
     }
 
+    pub(crate) fn front_face(&self) -> bool {
+        self.front_face
+    }
+
     pub fn material(&self) -> &'mat dyn crate::Material {
         self.material
     }
