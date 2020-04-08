@@ -15,6 +15,20 @@ fn rand_unit_vector() -> Vector {
     Vector::new(r * a.cos(), r * a.sin(), z)
 }
 
+fn rand_in_unit_disk() -> Vector {
+    use rand::Rng;
+
+    let mut rng = rand::thread_rng();
+
+    loop {
+        let p = Vector::new(rng.gen_range(-1.0, 1.0), rng.gen_range(-1.0, 1.0), 0.0);
+
+        if p.norm_squared() < 1.0 {
+            return p;
+        }
+    }
+}
+
 fn reflect(v: &Vector, normal: &Vector) -> Vector {
     v - 2.0 * v.dot(normal) * normal
 }
