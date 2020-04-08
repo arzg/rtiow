@@ -7,7 +7,12 @@ pub struct HitRecord {
 }
 
 impl HitRecord {
-    pub(crate) fn new(ray: &crate::Ray, position: crate::Point, t: crate::Float, outward_normal: crate::Vector) -> Self {
+    pub(crate) fn new(
+        ray: &crate::Ray,
+        position: crate::Point,
+        t: crate::Float,
+        outward_normal: crate::Vector,
+    ) -> Self {
         let front_face = ray.direction().dot(&outward_normal) < 0.0;
 
         let normal = if front_face {
@@ -22,6 +27,10 @@ impl HitRecord {
             normal,
             front_face,
         }
+    }
+
+    pub fn position(&self) -> &crate::Point {
+        &self.position
     }
 
     pub(crate) fn t(&self) -> crate::Float {

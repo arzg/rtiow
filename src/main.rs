@@ -1,6 +1,7 @@
 const WIDTH: u32 = 200;
 const HEIGHT: u32 = 100;
 const SAMPLES_PER_PIXEL: u32 = 100;
+const MAX_RAY_BOUNCES: u32 = 50;
 
 fn main() -> anyhow::Result<()> {
     use rand::Rng;
@@ -33,7 +34,7 @@ fn main() -> anyhow::Result<()> {
                 let v = (y as rtiow::Float + rng.gen_range(0.0, 1.0)) / rtiow::Float::from(HEIGHT);
                 let r = camera.ray(u, v);
 
-                color += ray_color(&r, &world);
+                color += ray_color(&r, &world, MAX_RAY_BOUNCES);
             }
 
             *pixel = color.as_rgb(SAMPLES_PER_PIXEL);
@@ -48,18 +49,29 @@ fn main() -> anyhow::Result<()> {
     Ok(())
 }
 
-fn ray_color(ray: &rtiow::Ray, world: &rtiow::HitList) -> rtiow::Color {
-    use {num::Float, rtiow::Hit};
+fn ray_color(ray: &rtiow::Ray, world: &rtiow::HitList, depth: u32) -> rtiow::Color {
+    use rtiow::Hit;
 
-    let color =
-        if let Some(hit_record) = world.hit(ray, 0.0, rtiow::Float::infinity()) {
-            0.5 * (hit_record.normal() + rtiow::Vector::new(1.0, 1.0, 1.0))
-        } else {
-            let unit_direction = ray.direction().normalize();
-            let t = 0.5 * (unit_direction.y + 1.0);
+    // If we have arrived at the ray bounce limit, then don’t contribute any more light.
+    if depth == 0 {
+        return rtiow::Color::new_unchecked(0.0, 0.0, 0.0);
+    }
 
-            (1.0 - t) * rtiow::Vector::new(1.0, 1.0, 1.0) + t * rtiow::Vector::new(0.5, 0.7, 1.0)
-        };
+    if let Some(hit_record) = world.hit(ray, 0.001, rtiow::float::INFINITY) {
+        let target = hit_record.position() + hit_record.normal() + rtiow::rand_unit_vector();
 
-    rtiow::Color::new_unchecked(color.x, color.y, color.z)
+        // Recurse into next bounce, halving brightness.
+        ray_color(
+            &rtiow::Ray::new(*hit_record.position(), target - hit_record.position()),
+            world,
+            depth - 1,
+        ) * 0.9
+    } else {
+        let unit_direction = ray.direction().normalize();
+        let t = 0.5 * (unit_direction.y + 1.0);
+        let gradient =
+            (1.0 - t) * rtiow::Vector::new(1.0, 1.0, 1.0) + t * rtiow::Vector::new(0.5, 0.7, 1.0);
+
+        rtiow::Color::new_unchecked(gradient.x, gradient.y, gradient.z)
+    }
 }

@@ -27,16 +27,25 @@ impl Color {
     }
 
     pub fn as_rgb(&self, samples_per_pixel: u32) -> image::Rgb<u8> {
-        // Divide the colour total by the number of samples.
+        // Divide the colour total by the number of samples and gamma-correct for a gamma value of
+        // 2.0.
         let scale = 1.0 / crate::Float::from(samples_per_pixel);
-        let r = scale * self.r();
-        let g = scale * self.g();
-        let b = scale * self.b();
+        let r = (scale * self.r()).sqrt();
+        let g = (scale * self.g()).sqrt();
+        let b = (scale * self.b()).sqrt();
 
         let r255: crate::Float = 255.0 * num::clamp(r, 0.0, 1.0);
         let g255: crate::Float = 255.0 * num::clamp(g, 0.0, 1.0);
         let b255: crate::Float = 255.0 * num::clamp(b, 0.0, 1.0);
 
         image::Rgb([r255.round() as u8, g255.round() as u8, b255.round() as u8])
+    }
+}
+
+impl std::ops::Mul<crate::Float> for Color {
+    type Output = Self;
+
+    fn mul(self, rhs: crate::Float) -> Self::Output {
+        Self(self.0 * rhs)
     }
 }
