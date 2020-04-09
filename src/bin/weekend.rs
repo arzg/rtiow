@@ -57,10 +57,10 @@ fn main() -> anyhow::Result<()> {
     Ok(())
 }
 
-fn random_scene() -> rtiow::HitList {
+fn random_scene() -> rtiow::World {
     use rand::Rng;
 
-    let mut world = rtiow::HitList::new();
+    let mut world = rtiow::World::new();
     let mut rng = rand::thread_rng();
 
     world.push(Box::new(rtiow::Sphere::new(
@@ -149,7 +149,7 @@ fn random_scene() -> rtiow::HitList {
     world
 }
 
-fn ray_color(ray: &rtiow::Ray, world: &rtiow::HitList, depth: u32) -> rtiow::Color {
+fn ray_color(ray: &rtiow::Ray, world: &rtiow::World, depth: u32) -> rtiow::Color {
     use rtiow::Hit;
 
     // If we have arrived at the ray bounce limit, then don’t contribute any more light.

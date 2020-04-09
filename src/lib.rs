@@ -52,13 +52,13 @@ mod camera;
 mod color;
 mod dielectric;
 mod hit;
-mod hit_list;
 mod lambertian;
 mod material;
 mod metal;
 mod non_neg_float;
 mod ray;
 mod sphere;
+mod world;
 
 use material::Material;
 
@@ -67,10 +67,10 @@ pub use {
     color::Color,
     dielectric::Dielectric,
     hit::{Hit, HitRecord},
-    hit_list::HitList,
     lambertian::Lambertian,
     metal::Metal,
     non_neg_float::NonNegFloat,
     ray::Ray,
     sphere::Sphere,
+    world::World,
 };

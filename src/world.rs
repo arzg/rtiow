@@ -1,9 +1,9 @@
 #[derive(Default)]
-pub struct HitList {
+pub struct World {
     items: Vec<Box<dyn crate::Hit>>,
 }
 
-impl HitList {
+impl World {
     pub fn new() -> Self {
         Self { items: Vec::new() }
     }
@@ -13,7 +13,7 @@ impl HitList {
     }
 }
 
-impl crate::Hit for HitList {
+impl crate::Hit for World {
     fn hit(
         &self,
         ray: &crate::Ray,
