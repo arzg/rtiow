@@ -1,8 +1,8 @@
-const WIDTH: u32 = 200;
-const HEIGHT: u32 = 100;
+const WIDTH: u32 = 1280;
+const HEIGHT: u32 = 720;
 const ASPECT: rtiow::Float = WIDTH as rtiow::Float / HEIGHT as rtiow::Float;
-const VERTICAL_FOV: rtiow::Float = 27.0;
-const APERTURE: rtiow::Float = 0.5;
+const VERTICAL_FOV: rtiow::Float = 20.0;
+const APERTURE: rtiow::Float = 0.2;
 const SAMPLES_PER_PIXEL: u32 = 100;
 const MAX_RAY_BOUNCES: u32 = 50;
 
@@ -14,10 +14,10 @@ fn main() -> anyhow::Result<()> {
     let mut img: image::RgbImage =
         image::ImageBuffer::from_pixel(WIDTH, HEIGHT, image::Rgb([0, 0, 0]));
 
-    let look_from = rtiow::Vector::new(0.0, 0.5, 2.0);
-    let look_at = rtiow::Vector::new(0.0, 0.0, -1.0);
+    let look_from = rtiow::Vector::new(13.0, 2.0, 3.0);
+    let look_at = rtiow::Vector::new(0.0, 0.0, 0.0);
     let vup = rtiow::Vector::new(0.0, 1.0, 0.0);
-    let dist_to_focus = (look_from - look_at).norm();
+    let dist_to_focus = 10.0;
 
     let camera = rtiow::Camera::new(
         look_from,
@@ -31,36 +31,7 @@ fn main() -> anyhow::Result<()> {
 
     let mut rng = rand::thread_rng();
 
-    let mut world = rtiow::HitList::new();
-
-    world.push(Box::new(rtiow::Sphere::new(
-        rtiow::Point::new(0.0, 0.0, -1.0),
-        0.5,
-        Box::new(rtiow::Lambertian::new(rtiow::Color::new_unchecked(
-            0.7, 0.3, 0.3,
-        ))),
-    )));
-    world.push(Box::new(rtiow::Sphere::new(
-        rtiow::Point::new(0.0, -100.5, -1.0),
-        100.0,
-        Box::new(rtiow::Lambertian::new(rtiow::Color::new_unchecked(
-            0.8, 0.8, 0.0,
-        ))),
-    )));
-    world.push(Box::new(rtiow::Sphere::new(
-        rtiow::Point::new(1.0, 0.0, -1.0),
-        0.5,
-        Box::new(rtiow::Metal::new(rtiow::Color::new_unchecked(
-            0.8, 0.6, 0.2,
-        ))),
-    )));
-    world.push(Box::new(rtiow::Sphere::new(
-        rtiow::Point::new(-1.0, 0.0, -1.0),
-        0.5,
-        Box::new(rtiow::Metal::new(rtiow::Color::new_unchecked(
-            0.8, 0.8, 0.8,
-        ))),
-    )));
+    let world = random_scene();
 
     for (y, row) in img.rows_mut().rev().enumerate() {
         for (x, pixel) in row.enumerate() {
@@ -84,6 +55,98 @@ fn main() -> anyhow::Result<()> {
     img.save("output.png")?;
 
     Ok(())
+}
+
+fn random_scene() -> rtiow::HitList {
+    use rand::Rng;
+
+    let mut world = rtiow::HitList::new();
+    let mut rng = rand::thread_rng();
+
+    world.push(Box::new(rtiow::Sphere::new(
+        rtiow::Point::new(0.0, -1000.0, 0.0),
+        1000.0,
+        Box::new(rtiow::Lambertian::new(rtiow::Color::new_unchecked(
+            0.5, 0.5, 0.5,
+        ))),
+    )));
+
+    for a in (-11..11).map(rtiow::Float::from) {
+        for b in (-11..11).map(rtiow::Float::from) {
+            let choose_material = rng.gen_range(0.0, 1.0);
+            let center = rtiow::Point::new(
+                a + 0.9 * rng.gen_range(0.0, 1.0),
+                0.2,
+                b + 0.9 * rng.gen_range(0.0, 1.0),
+            );
+
+            if (center.coords - rtiow::Vector::new(4.0, 0.2, 0.0)).norm() > 0.9 {
+                match choose_material {
+                    _ if choose_material < 0.4 => {
+                        // diffuse
+                        let rand_r = rng.gen_range(0.0, 1.0);
+                        let rand_g = rng.gen_range(0.0, 1.0);
+                        let rand_b = rng.gen_range(0.0, 1.0);
+
+                        let color = rtiow::Color::new_unchecked(rand_r, rand_g, rand_b);
+                        world.push(Box::new(rtiow::Sphere::new(
+                            center,
+                            0.2,
+                            Box::new(rtiow::Lambertian::new(color)),
+                        )));
+                    }
+                    _ if choose_material < 0.9 => {
+                        // metal
+                        let rand_r = rng.gen_range(0.5, 1.0);
+                        let rand_g = rng.gen_range(0.5, 1.0);
+                        let rand_b = rng.gen_range(0.5, 1.0);
+
+                        let color = rtiow::Color::new_unchecked(rand_r, rand_g, rand_b);
+                        let fuzz = rng.gen_range(0.0, 0.5);
+
+                        world.push(Box::new(rtiow::Sphere::new(
+                            center,
+                            0.2,
+                            Box::new(rtiow::Metal::new(color, fuzz)),
+                        )));
+                    }
+                    _ => {
+                        // glass
+                        world.push(Box::new(rtiow::Sphere::new(
+                            center,
+                            0.2,
+                            Box::new(rtiow::Dielectric::new(1.5)),
+                        )));
+                    }
+                }
+            }
+        }
+    }
+
+    world.push(Box::new(rtiow::Sphere::new(
+        rtiow::Point::new(0.0, 1.0, 0.0),
+        1.0,
+        Box::new(rtiow::Dielectric::new(1.5)),
+    )));
+
+    world.push(Box::new(rtiow::Sphere::new(
+        rtiow::Point::new(-4.0, 1.0, 0.0),
+        1.0,
+        Box::new(rtiow::Lambertian::new(rtiow::Color::new_unchecked(
+            0.4, 0.2, 0.1,
+        ))),
+    )));
+
+    world.push(Box::new(rtiow::Sphere::new(
+        rtiow::Point::new(4.0, 1.0, 0.0),
+        1.0,
+        Box::new(rtiow::Metal::new(
+            rtiow::Color::new_unchecked(0.7, 0.6, 0.5),
+            0.0,
+        )),
+    )));
+
+    world
 }
 
 fn ray_color(ray: &rtiow::Ray, world: &rtiow::HitList, depth: u32) -> rtiow::Color {
