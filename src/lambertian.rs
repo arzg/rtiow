@@ -12,11 +12,11 @@ impl Lambertian {
 impl crate::Material for Lambertian {
     fn scatter(
         &self,
-        _: &crate::Ray,
+        ray: &crate::Ray,
         hit_record: crate::HitRecord,
     ) -> Option<(crate::Ray, &crate::Color)> {
         let scatter_direction = hit_record.normal() + crate::rand_unit_vector();
-        let scattered = crate::Ray::new(*hit_record.position(), scatter_direction);
+        let scattered = crate::Ray::new(*hit_record.position(), scatter_direction, ray.time());
 
         Some((scattered, &self.color))
     }

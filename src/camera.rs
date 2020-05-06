@@ -6,6 +6,8 @@ pub struct Camera {
     u: crate::Vector,
     v: crate::Vector,
     lens_radius: crate::Float,
+    time0: crate::Float,
+    time1: crate::Float,
 }
 
 impl Camera {
@@ -17,6 +19,8 @@ impl Camera {
         aspect: crate::Float,
         aperture: crate::Float,
         focus_dist: crate::Float,
+        time0: crate::Float,
+        time1: crate::Float,
     ) -> Self {
         let theta = vertical_fov.to_radians();
         let half_height = (theta / 2.0).tan();
@@ -37,10 +41,12 @@ impl Camera {
             u,
             v,
             lens_radius: aperture / 2.0,
+            time0,
+            time1,
         }
     }
 
-    pub fn ray(&self, s: crate::Float, t: crate::Float) -> crate::Ray {
+    pub fn ray(&self, s: crate::Float, t: crate::Float, rng: &mut impl rand::Rng) -> crate::Ray {
         let rd = self.lens_radius * crate::rand_in_unit_disk();
         let offset = self.u * rd.x + self.v * rd.y;
 
@@ -49,6 +55,7 @@ impl Camera {
             self.lower_left_corner + s * self.horizontal + t * self.vertical
                 - self.origin.coords
                 - offset,
+            rng.gen_range(self.time0, self.time1),
         )
     }
 }

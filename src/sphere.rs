@@ -1,7 +1,10 @@
 pub struct Sphere {
-    center: crate::Point,
+    center0: crate::Point,
+    center1: crate::Point,
     radius: crate::Float,
     material: Box<dyn crate::Material>,
+    time0: crate::Float,
+    time1: crate::Float,
 }
 
 impl Sphere {
@@ -11,10 +14,36 @@ impl Sphere {
         material: Box<dyn crate::Material>,
     ) -> Self {
         Self {
-            center,
+            center0: center,
+            center1: center,
             radius,
             material,
+            time0: crate::float::MIN,
+            time1: crate::float::MAX,
         }
+    }
+
+    pub fn new_moving(
+        center0: crate::Point,
+        center1: crate::Point,
+        radius: crate::Float,
+        material: Box<dyn crate::Material>,
+        time0: crate::Float,
+        time1: crate::Float,
+    ) -> Self {
+        Self {
+            center0,
+            center1,
+            radius,
+            material,
+            time0,
+            time1,
+        }
+    }
+
+    fn center(&self, time: crate::Float) -> crate::Point {
+        self.center0
+            + ((time - self.time0) / (self.time1 - self.time0)) * (self.center1 - self.center0)
     }
 }
 
@@ -25,7 +54,8 @@ impl crate::Hit for Sphere {
         t_min: crate::Float,
         t_max: crate::Float,
     ) -> Option<crate::HitRecord> {
-        let oc = ray.origin() - self.center;
+        let center = self.center(ray.time());
+        let oc = ray.origin() - center;
 
         let a = ray.direction().norm_squared();
         let half_b = oc.dot(ray.direction());
@@ -50,7 +80,7 @@ impl crate::Hit for Sphere {
             };
 
             let hit_position = ray.at(t);
-            let outward_normal = (hit_position - self.center) / self.radius;
+            let outward_normal = (hit_position - center) / self.radius;
 
             Some(crate::HitRecord::new(
                 ray,

@@ -43,7 +43,7 @@ impl crate::Material for Dielectric {
             crate::refract(&unit_direction, hit_record.normal(), etai_over_etat)
         };
 
-        let scattered = crate::Ray::new(*hit_record.position(), scattered_vec);
+        let scattered = crate::Ray::new(*hit_record.position(), scattered_vec, ray.time());
 
         Some((scattered, &self.color))
     }
